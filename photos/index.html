@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File List in Photos Folder</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        ul { list-style: none; padding: 0; }
+        li { margin: 10px 0; }
+        a { text-decoration: none; color: #0066cc; font-weight: bold; }
+        a:hover { color: #004499; }
+        #fileView { display: none; }
+        #fileListView { display: block; }
+        button { margin-top: 20px; padding: 10px 15px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="fileListView">
+        <h1>A New Age</h1>
+        <p>Days of begging for pics is over. Just choose one and it shall be yours:</p>
+        <ul id="fileList"></ul>
+    </div>
+
+    <div id="fileView">
+        <button onclick="goBack()">Back</button>
+        <div id="fileContent"></div>
+    </div>
+
+    <script>
+        // Fetch the list of files from the server
+        fetch('/filelist')
+            .then(response => response.json())
+            .then(files => {
+                const fileList = document.getElementById('fileList');
+                files.forEach(file => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<a href="#" onclick="viewFile('${file}')">${file}</a>`;
+                    fileList.appendChild(listItem);
+                });
+            })
+            .catch(err => {
+                console.error('Error fetching file list:', err);
+                document.body.innerHTML += '<p style="color:red;">Error fetching file list.</p>';
+            });
+
+        // Function to view a file
+        function viewFile(file) {
+            const fileListView = document.getElementById('fileListView');
+            const fileView = document.getElementById('fileView');
+            const fileContent = document.getElementById('fileContent');
+
+            // Show the file content
+            fileListView.style.display = 'none';
+            fileView.style.display = 'block';
+
+            // Display the file (images or files with download links)
+            if (file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.gif')) {
+                fileContent.innerHTML = `<img src="${file}" alt="${file}" style="max-width:100%; height:auto;">`;
+            } else {
+                fileContent.innerHTML = `<a href="${file}" target="_blank" download>Download ${file}</a>`;
+            }
+        }
+
+        // Function to go back to the file list
+        function goBack() {
+            const fileListView = document.getElementById('fileListView');
+            const fileView = document.getElementById('fileView');
+
+            fileListView.style.display = 'block';
+            fileView.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
